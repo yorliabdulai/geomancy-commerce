@@ -164,7 +164,7 @@ const Login = () => {
                         href="mailto: kartikpavan2@gmail.com"
                         className="text-red-500 font-semibold"
                       >
-                        yorliandulai1@gmail.com
+                        yorliabdulai1@gmail.com
                       </a>
                     </p>
                   </label>

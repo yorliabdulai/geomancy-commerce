@@ -66,7 +66,7 @@ const Navbar = () => {
         <div className="navbar w-full md:w-9/12 mx-auto flex items-center justify-between">
           <section className="md:gap-4">
             <Link to="/" className="btn btn-ghost ">
-              <h1 className="logo text-white text-lg md:text-3xl ">E-Shop.com</h1>
+              <h1 className="logo text-white text-lg md:text-3xl ">Geomancy Commerce</h1>
             </Link>
           </section>
           <div>
