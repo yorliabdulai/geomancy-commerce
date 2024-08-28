@@ -5,7 +5,7 @@ import { calculateSubtotal, calculateTotalQuantity } from "../../redux/slice/car
 import { formatPrice } from "../../utils/formatPrice";
 import PaystackPop from '@paystack/inline-js';
 
-const Checkout = () => {
+const CheckoutForm = () => {
     // Redux states
     const { cartItems, totalQuantity, totalAmount } = useSelector((store) => store.cart);
     const { shippingAddress, billingAddress } = useSelector((store) => store.checkout);
@@ -91,4 +91,4 @@ const Checkout = () => {
     );
 };
 
-export default Checkout;
+export default CheckoutForm;

@@ -19,40 +19,53 @@ const Checkout = () => {
     }, [dispatch, cartItems]);
 
     // local states
-    const [loading, setLoading] = useState(false);
+    const [isLoading, setIsLoading] = useState(false);
 
-    const handlePaystackPayment = () => {
-        setLoading(true);
-        // First, make a POST request to your backend to initialize the transaction and get the access code
-        fetch("https://ecom-server.onrender.com/initialize-transaction", {
-            method: "POST",
-            headers: { "Content-Type": "application/json" },
-            body: JSON.stringify({
-                items: cartItems,
-                userEmail: email,
-                shippingAddress,
-                billingAddress,
-                description: `Payment of ${formatPrice(totalAmount)} from ${email}`,
-            }),
-        })
-        .then((res) => res.json())
-        .then((data) => {
-            const { access_code } = data;
+    // Define the initializeTransaction function
+    const initializeTransaction = async () => {
+        try {
+            const response = await fetch("http://localhost:3000/initialize-transaction", {
+                method: "POST",
+                headers: { "Content-Type": "application/json" },
+                body: JSON.stringify({
+                    items: cartItems,
+                    userEmail: email,
+                    shippingAddress,
+                    billingAddress,
+                    description: `Payment of ${formatPrice(totalAmount)} from ${email}`,
+                }),
+            });
 
-            const paystack = new PaystackPop();
-            paystack.resumeTransaction(access_code);
-
-            setLoading(false);
-        })
-        .catch((error) => {
+            const data = await response.json();
+            return data.access_code; // Assuming your backend returns an access_code
+        } catch (error) {
             console.error("Error initializing transaction:", error);
-            setLoading(false);
-        });
+            setIsLoading(false);
+            throw error;
+        }
+    };
+
+    const handlePaystackPayment = async () => {
+        setIsLoading(true);
+        try {
+            const accessCode = await initializeTransaction();
+
+            if (accessCode) {
+                const paystack = new PaystackPop();
+                paystack.resumeTransaction(accessCode); // Use the access code to resume the transaction
+            } else {
+                console.error("Access code not retrieved.");
+                setIsLoading(false);
+            }
+        } catch (error) {
+            console.error("Payment failed:", error);
+            setIsLoading(false);
+        }
     };
 
     return (
         <main>
-            {loading && <Loader />}
+            {isLoading && <Loader />}
             <div>
                 <button onClick={handlePaystackPayment} className="pay-button">
                     Pay Now
