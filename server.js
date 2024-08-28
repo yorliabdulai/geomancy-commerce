@@ -20,15 +20,19 @@ app.get("/", (req, res) => {
 });
 
 const calculateOrderAmount = (items) => {
-    const newArray = [];
-    items.map((item) => {
+    if (!Array.isArray(items) || items.length === 0) {
+        throw new Error("Items array is required to calculate order amount");
+    }
+
+    const newArray = items.map((item) => {
         const { price, qty } = item;
-        const totalItemAmount = price * qty;
-        return newArray.push(totalItemAmount);
+        return price * qty;
     });
+
     const totalCartAmount = newArray.reduce((total, curr) => total + curr, 0);
-    return totalCartAmount; // Return amount in lowest denomination (e.g., Naira kobo)
+    return totalCartAmount; // Assuming the amount is in kobo or the lowest denomination of your currency
 };
+
 
 app.post("/initialize-transaction", async (req, res) => {
     const { items, shippingAddress, description, email } = req.body;
