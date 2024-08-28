@@ -101,6 +101,7 @@ const AddProducts = () => {
         createdAt: productEdit.createdAt,
         editedAt: Timestamp.now().toDate(),
       });
+      console.log("Document added:", docRef.id);
       setUploadProgress(0);
       setProduct(defaultValues);
       setIsLoading(false);
