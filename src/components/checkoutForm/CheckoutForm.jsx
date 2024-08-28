@@ -1,137 +1,90 @@
-import React, { useEffect, useState } from "react";
-import {
-  PaymentElement,
-  useStripe,
-  useElements,
-} from "@stripe/react-stripe-js";
-import CheckoutSummary from "../checkoutSummary/CheckoutSummary";
-import Breadcrumbs from "../breadcrumbs/Breadcrumbs";
-import Header from "../header/Header";
-import { toast } from "react-toastify";
-import { useNavigate } from "react-router-dom";
-// firebase
-import { collection, addDoc, Timestamp } from "firebase/firestore";
-import { db } from "../../firebase/config";
-//redux
+import React, { useState, useEffect } from "react";
+import Loader from "../../components/loader/Loader";
 import { useSelector, useDispatch } from "react-redux";
-import { clearCart } from "../../redux/slice/cartSlice";
-import Loader from "../loader/Loader";
+import { calculateSubtotal, calculateTotalQuantity } from "../../redux/slice/cartSlice";
+import { formatPrice } from "../../utils/formatPrice";
+import PaystackPop from '@paystack/inline-js';
 
-const CheckoutForm = () => {
-  const stripe = useStripe();
-  const elements = useElements();
+const Checkout = () => {
+    // Redux states
+    const { cartItems, totalQuantity, totalAmount } = useSelector((store) => store.cart);
+    const { shippingAddress, billingAddress } = useSelector((store) => store.checkout);
+    const { email } = useSelector((store) => store.auth);
+    const dispatch = useDispatch();
+    const [isLoading, setIsLoading] = useState(false); // State to manage loading
+    const [accessCode, setAccessCode] = useState(""); // State to store Paystack access code
 
-  const [message, setMessage] = useState(null);
-  const [isLoading, setIsLoading] = useState(false);
+    useEffect(() => {
+        dispatch(calculateSubtotal());
+        dispatch(calculateTotalQuantity());
+    }, [dispatch, cartItems]);
 
-  const navigate = useNavigate();
-  const dispatch = useDispatch();
-  const { email, userId } = useSelector((store) => store.auth);
-  const { cartItems, totalAmount } = useSelector((store) => store.cart);
-  const { shippingAddress } = useSelector((store) => store.checkout);
+    const description = `Payment of ${formatPrice(totalAmount)} from ${email}`;
 
-  const saveOrder = () => {
-    const date = new Date().toDateString();
-    const time = new Date().toLocaleTimeString();
-    const orderDetails = {
-      userId,
-      email,
-      orderDate: date,
-      orderTime: time,
-      orderAmount: totalAmount,
-      orderStatus: "Order Placed",
-      cartItems,
-      shippingAddress,
-      createdAt: Timestamp.now().toDate(),
+    // Function to initialize transaction and get access code
+    const initializeTransaction = async () => {
+        try {
+            const response = await fetch("http://localhost:3000/initialize-transaction", {
+                method: "POST",
+                headers: { "Content-Type": "application/json" },
+                body: JSON.stringify({
+                    email: email,
+                    amount: totalAmount * 100, // Convert amount to kobo
+                    description: description,
+                    shippingAddress: shippingAddress,
+                    billingAddress: billingAddress
+                }),
+            });
+            const data = await response.json();
+            setAccessCode(data.accessCode);
+        } catch (error) {
+            console.error("Error initializing transaction:", error);
+        }
     };
-    try {
-      addDoc(collection(db, "orders"), orderDetails);
-      dispatch(clearCart());
-    } catch (error) {
-      toast.error(error.message);
-    }
-  };
 
-  const handleSubmit = async (e) => {
-    e.preventDefault();
-    setMessage(null);
-    if (!stripe || !elements) {
-      return;
-    }
-    setIsLoading(true);
-    const confirmPayment = await stripe
-      .confirmPayment({
-        elements,
-        confirmParams: {
-          // Make sure to change this to your payment completion page
-          return_url: "http://localhost:5173/checkout-success",
-        },
-        redirect: "if_required",
-      })
-      .then((res) => {
-        if (res.error) {
-          setMessage(res.error.message);
-          toast.error(res.error.message);
-          return;
-        }
-        if (res.paymentIntent) {
-          if (res.paymentIntent.status === "succeeded") {
-            setIsLoading(false);
-            toast.success("Payment Successful");
-            saveOrder();
-            navigate("/checkout-success", { replace: true });
-          }
-        }
-      });
-    setIsLoading(false);
-  };
+    const handlePaystackPayment = async () => {
+        setIsLoading(true);
+        await initializeTransaction();
 
-  useEffect(() => {
-    if (!stripe) {
-      return;
-    }
-    const clientSecret = new URLSearchParams(window.location.search).get(
-      "payment_intent_client_secret"
+        if (accessCode) {
+            const paystack = new PaystackPop();
+            paystack.popup({
+                key: import.meta.env.VITE_PAYSTACK_PUBLIC_KEY,
+                email: email,
+                amount: totalAmount * 100, // Convert to kobo
+                currency: "GHS",
+                ref: `${email}-${Date.now()}`,
+                metadata: {
+                    custom_fields: [
+                        { display_name: "Shipping Address", variable_name: "shipping_address", value: shippingAddress },
+                        { display_name: "Billing Address", variable_name: "billing_address", value: billingAddress }
+                    ]
+                },
+                callback: function (response) {
+                    console.log("Payment successful:", response);
+                    setIsLoading(false);
+                    // Handle successful payment here
+                },
+                onClose: function () {
+                    setIsLoading(false);
+                    alert("Transaction was not completed, window closed.");
+                },
+            });
+        }
+    };
+
+    return (
+        <main>
+            {isLoading && <Loader />}
+            <div>
+                {!isLoading && (
+                    <button onClick={handlePaystackPayment} className="paystack-button">
+                        Pay Now
+                    </button>
+                )}
+            </div>
+        </main>
     );
-    if (!clientSecret) {
-      return;
-    }
-  }, [stripe]);
-
-  return (
-    <>
-      <Header text="Stripe Payment Gateway" />
-      <section className="w-full mx-auto p-4 md:p-10 md:w-9/12 md:px-6 flex flex-col h-full">
-        <div className="flex flex-col-reverse md:flex-row gap-4 justify-evenly">
-          <div className="w-full md:w-2/5 h-max p-4 bg-base-100 rounded-md shadow-xl">
-            <CheckoutSummary />
-          </div>
-          <div className="rounded-md shadow-xl pt-4 pb-8 px-10">
-            <h1 className="text-3xl font-light mb-2">Stripe Checkout</h1>
-            <form className="md:w-[30rem]" onSubmit={handleSubmit}>
-              <PaymentElement id="payment-element" />
-              <button
-                disabled={isLoading || !stripe || !elements}
-                id="submit"
-                className="btn bg-blue-600"
-              >
-                <span id="button-text">
-                  {isLoading ? (
-                    // <div className="spinner" id="spinner"></div>
-                    <Loader />
-                  ) : (
-                    "Pay now"
-                  )}
-                </span>
-              </button>
-              {/* Show any error or success messages */}
-              {message && <div id="payment-message">{message}</div>}
-            </form>
-          </div>
-        </div>
-      </section>
-    </>
-  );
 };
 
-export default CheckoutForm;
+export default Checkout;
