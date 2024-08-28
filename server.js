@@ -2,61 +2,68 @@ require("dotenv").config();
 const express = require("express");
 const cors = require("cors");
 const path = require("path");
+const axios = require("axios"); // Add axios for making HTTP requests
 const app = express();
+
 if (process.env.NODE_ENV === "production") {
-	app.use(express.static("build"));
-	app.get("*", (req, res) => {
-		res.sendFile(path.resolve(__dirname, "build", "index.html"));
-	});
+    app.use(express.static("build"));
+    app.get("*", (req, res) => {
+        res.sendFile(path.resolve(__dirname, "build", "index.html"));
+    });
 }
-// This is your test secret API key.
-const stripe = require("stripe")(process.env.STRIPE_SECRET_KEY);
 
 app.use(express.json());
 app.use(cors());
 
 app.get("/", (req, res) => {
-	res.send("Welcome to Geomancy-Shop");
+    res.send("Welcome to Geomancy-Shop");
 });
 
-const newArray = [];
 const calculateOrderAmount = (items) => {
-	items.map((item) => {
-		const { price, qty } = item;
-		const totalItemAmount = price * qty;
-		return newArray.push(totalItemAmount);
-	});
-	const totalCartAmount = newArray.reduce((total, curr) => total + curr, 0);
-	return totalCartAmount * 100;
+    const newArray = [];
+    items.map((item) => {
+        const { price, qty } = item;
+        const totalItemAmount = price * qty;
+        return newArray.push(totalItemAmount);
+    });
+    const totalCartAmount = newArray.reduce((total, curr) => total + curr, 0);
+    return totalCartAmount; // Return amount in lowest denomination (e.g., Naira kobo)
 };
 
-app.post("/create-payment-intent", async (req, res) => {
-	const { items, shippingAddress, description } = req.body;
-	console.log(shippingAddress);
-	// Create a PaymentIntent with the order amount and currency
-	const paymentIntent = await stripe.paymentIntents.create({
-		amount: calculateOrderAmount(items),
-		currency: "inr",
-		automatic_payment_methods: {
-			enabled: true,
-		},
-		description,
-		shipping: {
-			address: {
-				line1: shippingAddress.line1,
-				line2: shippingAddress.line2,
-				city: shippingAddress.city,
-				country: shippingAddress.country,
-				// pin_code: shippingAddress.pin_code,
-			},
-			name: shippingAddress.name,
-			phone: shippingAddress.phone,
-		},
-	});
+app.post("/initialize-transaction", async (req, res) => {
+    const { items, shippingAddress, description, email } = req.body;
+    const amount = calculateOrderAmount(items) * 100; // Convert to kobo if necessary
 
-	res.send({
-		clientSecret: paymentIntent.client_secret,
-	});
+    try {
+        // Initialize transaction with Paystack
+        const response = await axios.post(
+            'https://api.paystack.co/transaction/initialize',
+            {
+                email: email,
+                amount: amount,
+                currency: 'NGN',
+                callback_url: 'http://localhost:5173/callback', // Replace with your actual callback URL
+                metadata: {
+                    shippingAddress,
+                    description
+                }
+            },
+            {
+                headers: {
+                    Authorization: `Bearer ${process.env.PAYSTACK_SECRET_KEY}`,
+                    'Content-Type': 'application/json'
+                }
+            }
+        );
+
+        // Send the Paystack transaction URL to the frontend
+        res.send({
+            authorization_url: response.data.data.authorization_url
+        });
+    } catch (error) {
+        console.error('Error initializing transaction:', error);
+        res.status(500).send({ error: 'Transaction initialization failed' });
+    }
 });
 
 const PORT = process.env.PORT || 4242;
