@@ -37,7 +37,7 @@ const Checkout = () => {
             });
 
             const data = await response.json();
-            return data.access_code; // Assuming your backend returns an access_code
+			return data.authorization_url; // Assuming your backend returns an access_code
         } catch (error) {
             console.error("Error initializing transaction:", error);
             setIsLoading(false);
@@ -48,15 +48,15 @@ const Checkout = () => {
     const handlePaystackPayment = async () => {
         setIsLoading(true);
         try {
-            const accessCode = await initializeTransaction();
+			const authorizationUrl = await initializeTransaction();
 
-            if (accessCode) {
-                const paystack = new PaystackPop();
-                paystack.resumeTransaction(accessCode); // Use the access code to resume the transaction
-            } else {
-                console.error("Access code not retrieved.");
-                setIsLoading(false);
-            }
+			if (authorizationUrl) {
+				// Redirect the user to Paystack's payment page
+				window.location.href = authorizationUrl;
+			} else {
+				console.error("Authorization URL not retrieved.");
+				setIsLoading(false);
+			}
         } catch (error) {
             console.error("Payment failed:", error);
             setIsLoading(false);
