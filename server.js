@@ -42,6 +42,7 @@ const calculateOrderAmount = (items) => {
 
 
 app.post("/initialize-transaction", async (req, res) => {
+    console.log(req.body);
     const { items, shippingAddress, description, email } = req.body;
     if (!items) {
         return res.status(400).send({ error: "No items found in request" });

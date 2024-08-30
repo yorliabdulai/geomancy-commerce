@@ -76,4 +76,4 @@ $ code .
 
 ## Software Developer
 
-- **Kartik Pavan**
+- **Abdulai Yorli Iddrisu**

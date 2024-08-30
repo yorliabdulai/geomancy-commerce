@@ -1,43 +1,69 @@
 import React, { useState, useEffect } from "react";
 import Loader from "../../components/loader/Loader";
 import { useSelector, useDispatch } from "react-redux";
-import { calculateSubtotal, calculateTotalQuantity } from "../../redux/slice/cartSlice";
+import { calculateSubtotal, calculateTotalQuantity, clearCart } from "../../redux/slice/cartSlice";
 import { formatPrice } from "../../utils/formatPrice";
-import PaystackPop from "@paystack/inline-js";
+import { collection, addDoc, Timestamp } from "firebase/firestore";
+import { db } from "../../firebase/config";
+import { useNavigate } from "react-router-dom";
+import { toast } from "react-toastify";
 import "./paystack.css";
 
 const Checkout = () => {
-    // Redux states
     const { cartItems, totalQuantity, totalAmount } = useSelector((store) => store.cart);
-    const { shippingAddress, billingAddress } = useSelector((store) => store.checkout);
-    const { email } = useSelector((store) => store.auth);
+    const { shippingAddress } = useSelector((store) => store.checkout);
+    const { email, userId } = useSelector((store) => store.auth);
     const dispatch = useDispatch();
+    const navigate = useNavigate();
 
     useEffect(() => {
         dispatch(calculateSubtotal());
         dispatch(calculateTotalQuantity());
     }, [dispatch, cartItems]);
 
-    // local states
     const [isLoading, setIsLoading] = useState(false);
 
-    // Define the initializeTransaction function
+    const saveOrder = async () => {
+        const orderDetails = {
+            userId,
+            email,
+            orderDate: new Date().toDateString(),
+            orderTime: new Date().toLocaleTimeString(),
+            orderAmount: totalAmount,
+            orderStatus: "Order Placed",
+            cartItems,
+            shippingAddress,
+            createdAt: Timestamp.now().toDate(),
+        };
+        try {
+            await addDoc(collection(db, "orders"), orderDetails);
+            dispatch(clearCart());
+            toast.success("Order saved successfully!");
+        } catch (error) {
+            console.error("Error saving order:", error);
+            toast.error("Failed to save order. Please contact support.");
+        }
+    };
+
     const initializeTransaction = async () => {
         try {
             const response = await fetch("http://localhost:3000/initialize-transaction", {
                 method: "POST",
                 headers: { "Content-Type": "application/json" },
                 body: JSON.stringify({
-                    items: cartItems,
-                    userEmail: email,
+                    items: cartItems.map(item => ({
+                        price: Math.round(item.price),
+                        qty: item.qty
+                    })),
+                    email,
                     shippingAddress,
-                    billingAddress,
+                    amount: totalAmount,
                     description: `Payment of ${formatPrice(totalAmount)} from ${email}`,
                 }),
             });
 
             const data = await response.json();
-			return data.authorization_url; // Assuming your backend returns an access_code
+            return data.authorization_url;
         } catch (error) {
             console.error("Error initializing transaction:", error);
             setIsLoading(false);
@@ -48,15 +74,25 @@ const Checkout = () => {
     const handlePaystackPayment = async () => {
         setIsLoading(true);
         try {
-			const authorizationUrl = await initializeTransaction();
+            const authorizationUrl = await initializeTransaction();
 
-			if (authorizationUrl) {
-				// Redirect the user to Paystack's payment page
-				window.location.href = authorizationUrl;
-			} else {
-				console.error("Authorization URL not retrieved.");
-				setIsLoading(false);
-			}
+            if (authorizationUrl) {
+                window.location.href = authorizationUrl;
+
+                // After successful payment, save the order and redirect
+                window.addEventListener('paystack:success', async () => {
+                    await saveOrder();
+                    navigate("/checkout-success", { replace: true });
+                });
+
+                window.addEventListener('paystack:failure', () => {
+                    toast.error("Payment failed. Please try again.");
+                    setIsLoading(false);
+                });
+            } else {
+                console.error("Authorization URL not retrieved.");
+                setIsLoading(false);
+            }
         } catch (error) {
             console.error("Payment failed:", error);
             setIsLoading(false);
