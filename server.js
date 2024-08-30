@@ -33,40 +33,41 @@ const calculateOrderAmount = (items) => {
     return totalCartAmount; // Assuming the amount is in kobo or the lowest denomination of your currency
 };
 
-
 app.post("/initialize-transaction", async (req, res) => {
     const { items, shippingAddress, description, email } = req.body;
-    const amount = calculateOrderAmount(items) * 100; // Convert to kobo if necessary
-
+    if (!items) {
+        return res.status(400).send({ error: "No items found in request" });
+    }
+    const amount = calculateOrderAmount(items);
     try {
         // Initialize transaction with Paystack
         const response = await axios.post(
-            'https://api.paystack.co/transaction/initialize',
+            "https://api.paystack.co/transaction/initialize",
             {
                 email: email,
                 amount: amount,
-                currency: 'NGN',
-                callback_url: 'http://localhost:5173/callback', // Replace with your actual callback URL
+                currency: "GHS", // Change to your desired currency if different
+                callback_url: "http://localhost:5173/callback", // Replace with your actual callback URL
                 metadata: {
                     shippingAddress,
-                    description
-                }
+                    description,
+                },
             },
             {
                 headers: {
-                    Authorization: `Bearer ${process.env.PAYSTACK_SECRET_KEY}`,
-                    'Content-Type': 'application/json'
-                }
+                    Authorization: `Bearer ${process.env.VITE_PAYSTACK_PUBLIC_KEY}`,
+                    "Content-Type": "application/json",
+                },
             }
         );
 
         // Send the Paystack transaction URL to the frontend
         res.send({
-            authorization_url: response.data.data.authorization_url
+            authorization_url: response.data.data.authorization_url,
         });
     } catch (error) {
-        console.error('Error initializing transaction:', error);
-        res.status(500).send({ error: 'Transaction initialization failed' });
+        console.error("Error initializing transaction:", error.response?.data || error.message);
+        res.status(500).send({ error: "Transaction initialization failed" });
     }
 });
 
