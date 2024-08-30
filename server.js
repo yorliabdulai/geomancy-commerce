@@ -13,7 +13,11 @@ if (process.env.NODE_ENV === "production") {
 }
 
 app.use(express.json());
-app.use(cors());
+app.use(cors({
+    origin: 'http://localhost:5173', // Allow only your frontend
+    methods: 'GET,POST,PUT,DELETE',  // Specify the allowed methods
+    allowedHeaders: 'Content-Type,Authorization' // Specify allowed headers
+}));
 
 app.get("/", (req, res) => {
     res.send("Welcome to Geomancy-Shop");
