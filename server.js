@@ -24,14 +24,18 @@ const calculateOrderAmount = (items) => {
         throw new Error("Items array is required to calculate order amount");
     }
 
-    const newArray = items.map((item) => {
-        const { price, qty } = item;
-        return price * qty;
-    });
+    // Calculate total amount in GHS
+    const totalCartAmountGHS = items.reduce((total, item) => {
+        const { price, qty } = item; // Ensure price is in GHS
+        return total + (price * qty); // Sum the total price
+    }, 0);
 
-    const totalCartAmount = newArray.reduce((total, curr) => total + curr, 0);
-    return totalCartAmount; // Assuming the amount is in kobo or the lowest denomination of your currency
+    // Convert to the smallest currency unit (Ghanaian Ghanas)
+    const totalAmountInGhanaCedis = totalCartAmountGHS * 100; // Convert to GHS
+
+    return totalAmountInGhanaCedis; // Return total in GHS
 };
+
 
 app.post("/initialize-transaction", async (req, res) => {
     const { items, shippingAddress, description, email } = req.body;
@@ -55,7 +59,7 @@ app.post("/initialize-transaction", async (req, res) => {
             },
             {
                 headers: {
-                    Authorization: `Bearer ${process.env.VITE_PAYSTACK_PUBLIC_KEY}`,
+                    Authorization: `Bearer sk_test_21caa1235e207b235bd4a5de86961a16b2feedf9`,
                     "Content-Type": "application/json",
                 },
             }
