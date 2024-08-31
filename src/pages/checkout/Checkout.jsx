@@ -105,7 +105,7 @@ const Checkout = () => {
             <div className="rounded-md shadow-xl pt-4 pb-8 px-10">
                 <h1 className="text-3xl font-light mb-2">Paystack Checkout</h1>
                 <form className="md:w-[30rem]" onSubmit={handlePaystackPayment}>
-                    <button disabled={isLoading} className="btn bg-blue-600 paystack-button">
+                    <button onClick={handlePaystackPayment} disabled={isLoading} className="btn bg-blue-600 paystack-button">
                         {isLoading ? "Processing..." : "Pay Now"}
                     </button>
                 </form>

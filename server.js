@@ -56,7 +56,7 @@ app.post("/initialize-transaction", async (req, res) => {
                 email: email,
                 amount: amount,
                 currency: "GHS", // Change to your desired currency if different
-                callback_url: "http://localhost:5173/callback", // Replace with your actual callback URL
+                callback_url: "http://localhost:5173/checkout-success", // Replace with your actual callback URL
                 metadata: {
                     shippingAddress,
                     description,
