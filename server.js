@@ -82,6 +82,7 @@ app.post("/initialize-transaction", async (req, res) => {
 // Verify transaction after successful payment
 app.get("/verify-transaction", async (req, res) => {
     const reference = req.query.reference;
+    console.log("Received transaction reference:", reference); // Debug
 
     try {
         const response = await axios.get(`https://api.paystack.co/transaction/verify/${reference}`, {
@@ -91,11 +92,13 @@ app.get("/verify-transaction", async (req, res) => {
         });
 
         const { status, data } = response.data;
+        console.log("Transaction verification response:", response.data); // Debug
 
         if (status === "success") {
             // Handle transaction success here (save order in the database, etc.)
             res.json({ success: true, message: "Transaction verified successfully", data });
         } else {
+            console.error("Transaction verification failed:", status);
             res.status(400).json({ success: false, message: "Transaction verification failed" });
         }
     } catch (error) {

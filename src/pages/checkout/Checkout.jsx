@@ -24,6 +24,11 @@ const Checkout = () => {
     const [isLoading, setIsLoading] = useState(false);
 
     const saveOrder = async () => {
+        if (!userId) {
+            toast.error("User not authenticated. Cannot save order.");
+            return;
+        }
+    
         const orderDetails = {
             userId,
             email,
@@ -35,15 +40,18 @@ const Checkout = () => {
             shippingAddress,
             createdAt: Timestamp.now(),
         };
+    
         try {
-            await addDoc(collection(db, "orders"), orderDetails);
+            await addDoc(collection(db, "orders"), orderDetails); // "orders" collection will be created if it doesn't exist
             dispatch(clearCart());
             toast.success("Order saved successfully!");
+            console.log("Order saved:", orderDetails);
         } catch (error) {
-            console.error("Error saving order:", error);
+            console.error("Error saving order to Firestore:", error.message);
             toast.error("Failed to save order. Please contact support.");
         }
     };
+    
 
     const initializeTransaction = async () => {
         try {
@@ -73,21 +81,25 @@ const Checkout = () => {
 
     const verifyTransaction = async (reference) => {
         try {
+            console.log("Verifying transaction with reference:", reference); // Debug
             const response = await fetch(`http://localhost:3000/verify-transaction?reference=${reference}`);
             const data = await response.json();
-
+    
             if (data.success) {
+                console.log("Transaction verified:", data); // Debug
                 await saveOrder(); // Save the order after successful payment
                 toast.success("Payment successful!");
                 navigate("/checkout-success");
             } else {
+                console.error("Transaction verification failed:", data.message); // Debug
                 toast.error("Transaction verification failed.");
             }
         } catch (error) {
-            console.error("Error verifying transaction:", error);
+            console.error("Error verifying transaction:", error); // Debug
             toast.error("Error verifying payment.");
         }
     };
+    
 
     useEffect(() => {
         const urlParams = new URLSearchParams(window.location.search);
