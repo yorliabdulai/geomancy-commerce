@@ -33,7 +33,7 @@ const Checkout = () => {
             orderStatus: "Order Placed",
             cartItems,
             shippingAddress,
-            createdAt: Timestamp.now().toDate(),
+            createdAt: Timestamp.now(),
         };
         try {
             await addDoc(collection(db, "orders"), orderDetails);
@@ -53,7 +53,7 @@ const Checkout = () => {
                 body: JSON.stringify({
                     items: cartItems.map(item => ({
                         price: Math.round(item.price),
-                        qty: item.qty
+                        qty: item.qty,
                     })),
                     email,
                     shippingAddress,
@@ -71,6 +71,33 @@ const Checkout = () => {
         }
     };
 
+    const verifyTransaction = async (reference) => {
+        try {
+            const response = await fetch(`http://localhost:3000/verify-transaction?reference=${reference}`);
+            const data = await response.json();
+
+            if (data.success) {
+                await saveOrder(); // Save the order after successful payment
+                toast.success("Payment successful!");
+                navigate("/checkout-success");
+            } else {
+                toast.error("Transaction verification failed.");
+            }
+        } catch (error) {
+            console.error("Error verifying transaction:", error);
+            toast.error("Error verifying payment.");
+        }
+    };
+
+    useEffect(() => {
+        const urlParams = new URLSearchParams(window.location.search);
+        const reference = urlParams.get('reference');
+
+        if (reference) {
+            verifyTransaction(reference); // Verify transaction after redirection
+        }
+    }, []);
+
     const handlePaystackPayment = async () => {
         setIsLoading(true);
         try {
@@ -78,17 +105,6 @@ const Checkout = () => {
 
             if (authorizationUrl) {
                 window.location.href = authorizationUrl;
-
-                // After successful payment, save the order and redirect
-                window.addEventListener('paystack:success', async () => {
-                    await saveOrder();
-                    navigate("/checkout-success", { replace: true });
-                });
-
-                window.addEventListener('paystack:failure', () => {
-                    toast.error("Payment failed. Please try again.");
-                    setIsLoading(false);
-                });
             } else {
                 console.error("Authorization URL not retrieved.");
                 setIsLoading(false);
@@ -104,11 +120,9 @@ const Checkout = () => {
             {isLoading && <Loader />}
             <div className="rounded-md shadow-xl pt-4 pb-8 px-10">
                 <h1 className="text-3xl font-light mb-2">Paystack Checkout</h1>
-                <form className="md:w-[30rem]" onSubmit={handlePaystackPayment}>
-                    <button onClick={handlePaystackPayment} disabled={isLoading} className="btn bg-blue-600 paystack-button">
-                        {isLoading ? "Processing..." : "Pay Now"}
-                    </button>
-                </form>
+                <button onClick={handlePaystackPayment} disabled={isLoading} className="btn bg-blue-600 paystack-button">
+                    {isLoading ? "Processing..." : "Pay Now"}
+                </button>
             </div>
         </main>
     );
