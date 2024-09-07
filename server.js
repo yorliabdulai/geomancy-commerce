@@ -79,6 +79,31 @@ app.post("/initialize-transaction", async (req, res) => {
         res.status(500).send({ error: "Transaction initialization failed" });
     }
 });
+// Verify transaction after successful payment
+app.get("/verify-transaction", async (req, res) => {
+    const reference = req.query.reference;
+
+    try {
+        const response = await axios.get(`https://api.paystack.co/transaction/verify/${reference}`, {
+            headers: {
+                Authorization: `Bearer sk_test_21caa1235e207b235bd4a5de86961a16b2feedf9`,
+            },
+        });
+
+        const { status, data } = response.data;
+
+        if (status === "success") {
+            // Handle transaction success here (save order in the database, etc.)
+            res.json({ success: true, message: "Transaction verified successfully", data });
+        } else {
+            res.status(400).json({ success: false, message: "Transaction verification failed" });
+        }
+    } catch (error) {
+        console.error("Error verifying transaction:", error.response?.data || error.message);
+        res.status(500).send({ error: "Failed to verify transaction" });
+    }
+});
+
 
 const PORT = process.env.PORT || 4242;
 app.listen(PORT, () => console.log(`Node server listening on port ${PORT}!`));
