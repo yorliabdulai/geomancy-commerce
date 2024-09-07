@@ -42,10 +42,11 @@ const CheckoutForm = () => {
         };
     
         try {
-            await addDoc(collection(db, "orders"), orderDetails); // "orders" collection will be created if it doesn't exist
+            // Add order to the "orders" collection
+            const docRef = await addDoc(collection(db, "orders"), orderDetails);
             dispatch(clearCart());
             toast.success("Order saved successfully!");
-            console.log("Order saved:", orderDetails);
+            console.log("Order saved with ID:", docRef.id);
         } catch (error) {
             console.error("Error saving order to Firestore:", error.message);
             toast.error("Failed to save order. Please contact support.");
