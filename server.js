@@ -35,7 +35,7 @@ const calculateOrderAmount = (items) => {
     }, 0);
 
     // Convert to the smallest currency unit (Ghanaian Ghanas)
-    const totalAmountInGhanaCedis = totalCartAmountGHS * 100; // Convert to GHS
+    const totalAmountInGhanaCedis = totalCartAmountGHS; // Convert to GHS
 
     return totalAmountInGhanaCedis; // Return total in GHS
 };
