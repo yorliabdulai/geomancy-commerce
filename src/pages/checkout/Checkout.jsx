@@ -16,44 +16,43 @@ const Checkout = () => {
     const dispatch = useDispatch();
     const navigate = useNavigate();
 
-    const [isLoading, setIsLoading] = useState(false);
-
     useEffect(() => {
         dispatch(calculateSubtotal());
         dispatch(calculateTotalQuantity());
     }, [dispatch, cartItems]);
 
-    // Save order in Firestore after transaction success
+    const [isLoading, setIsLoading] = useState(false);
+
     const saveOrder = async () => {
         if (!userId) {
             toast.error("User not authenticated. Cannot save order.");
             return;
         }
-
+    
         const orderDetails = {
             userId,
             email,
             orderDate: new Date().toDateString(),
             orderTime: new Date().toLocaleTimeString(),
             orderAmount: totalAmount,
-            orderStatus: "Paid", // Updated to reflect payment status
+            orderStatus: "Order Placed",
             cartItems,
             shippingAddress,
             createdAt: Timestamp.now(),
         };
-
+    
         try {
-            const docRef = await addDoc(collection(db, "orders"), orderDetails);
+            await addDoc(collection(db, "orders"), orderDetails); // "orders" collection will be created if it doesn't exist
             dispatch(clearCart());
             toast.success("Order saved successfully!");
-            console.log("Order saved with ID:", docRef.id);
+            console.log("Order saved:", orderDetails);
         } catch (error) {
             console.error("Error saving order to Firestore:", error.message);
             toast.error("Failed to save order. Please contact support.");
         }
     };
+    
 
-    // Initialize Paystack transaction
     const initializeTransaction = async () => {
         try {
             const response = await fetch("http://localhost:3000/initialize-transaction", {
@@ -80,13 +79,12 @@ const Checkout = () => {
         }
     };
 
-    // Verify the transaction using the reference
     const verifyTransaction = async (reference) => {
         try {
             console.log("Verifying transaction with reference:", reference); // Debug
             const response = await fetch(`http://localhost:3000/verify-transaction?reference=${reference}`);
             const data = await response.json();
-
+    
             if (data.success) {
                 console.log("Transaction verified:", data); // Debug
                 await saveOrder(); // Save the order after successful payment
@@ -101,8 +99,8 @@ const Checkout = () => {
             toast.error("Error verifying payment.");
         }
     };
+    
 
-    // Check URL for reference after redirection from Paystack
     useEffect(() => {
         const urlParams = new URLSearchParams(window.location.search);
         const reference = urlParams.get('reference');
