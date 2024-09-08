@@ -11,32 +11,51 @@ const ChangeOrderStatus = ({ order, orderId }) => {
 	const [isLoading, setIsloading] = useState(false);
 	const navigate = useNavigate();
 
-	const changeStatus = (e, orderId) => {
+	const changeStatus = async (e, orderId) => {
 		e.preventDefault();
 		setIsloading(true);
-		const orderDetails = {
-			userId: order.userId,
-			email: order.email,
-			orderDate: order.orderDate,
-			orderTime: order.orderTime,
-			orderAmount: order.orderAmount,
-			orderStatus: status,
-			cartItems: order.cartItems,
-			shippingAddress: order.shippingAddress,
-			createdAt: order.createdAt,
-			editedAt: Timestamp.now().toDate(),
-		};
-		try {
-			setDoc(doc(db, "orders", orderId), orderDetails);
-			setIsloading(false);
-			toast.success(`order status changed to ${status}`);
-			navigate("/admin/orders");
-		} catch (error) {
-			toast.error(error.message);
-			console.log(error);
-			setIsloading(false);
+		console.log("Order ID:", orderId);
+		console.log("Order details:", order);
+		
+		// Ensure that all necessary fields are defined
+		if (!order.userId || !order.email || !order.orderAmount) {
+		  toast.error("Missing order information. Cannot update status.");
+		  setIsloading(false);
+		  return;
 		}
-	};
+	  
+		const orderDetails = {
+		  userId: order.userId,
+		  email: order.email,
+		  orderDate: order.orderDate || "N/A", // Provide fallback values if necessary
+		  orderTime: order.orderTime || "N/A",
+		  orderAmount: order.orderAmount || 0,
+		  orderStatus: status || "Order Placed", // Default to "Order Placed" if no status selected
+		  cartItems: order.cartItems || [],
+		  shippingAddress: order.shippingAddress || {},
+		  createdAt: order.createdAt || Timestamp.now(),
+		  editedAt: Timestamp.now(), // No need to call .toDate(), Firestore handles timestamps natively
+		};
+	  
+		try {
+		  // Ensure orderId is valid before calling setDoc
+		  if (!orderId) {
+			throw new Error("Invalid order ID");
+		  }
+	  
+		  // Update the order status in Firestore
+		  await setDoc(doc(db, "orders", orderId), orderDetails);
+		  
+		  setIsloading(false);
+		  toast.success(`Order status changed to ${status}`);
+		  navigate("/admin/orders");
+		} catch (error) {
+		  setIsloading(false);
+		  toast.error(`Failed to update status: ${error.message}`);
+		  console.log("Error updating order status:", error);
+		}
+	  };
+	  
 
 	return (
 		<>
