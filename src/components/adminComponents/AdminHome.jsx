@@ -1,6 +1,6 @@
 import React, { useEffect } from "react";
 import { InfoBox, Chart } from "../../components";
-import { BiRupee } from "react-icons/bi";
+import { BiDollar } from "react-icons/bi";
 import { FaCartArrowDown } from "react-icons/fa";
 import { BsCart } from "react-icons/bs";
 import { formatPrice } from "../../utils/formatPrice";
@@ -9,7 +9,7 @@ import { useSelector, useDispatch } from "react-redux";
 import { totalOrderAmount, storeOrders } from "../../redux/slice/orderSlice";
 import useFetchCollection from "../../hooks/useFetchCollection";
 
-const earningIcon = <BiRupee size={22} color="white" />;
+const earningIcon = <BiDollar size={22} color="white" />;
 const productIcon = <FaCartArrowDown size={22} color="white" />;
 const orderIcon = <BsCart size={22} color="white" />;
 
