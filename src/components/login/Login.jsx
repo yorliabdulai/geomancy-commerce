@@ -72,17 +72,10 @@ const Login = () => {
   const provider = new GoogleAuthProvider();
   const googleSignIn = () => {
     setIsLoading(true);
-  
+    document.getElementById("my-modal-4").checked = false;
     signInWithPopup(auth, provider)
       .then((result) => {
         const user = result.user;
-        // Dispatch user data to Redux
-        dispatch(setActiveUser({
-          email: user.email,
-          userName: user.displayName,
-          userId: user.uid, // Set userId here
-        }));
-  
         toast.success("Login Successful");
         setIsLoading(false);
         navigate("/");
@@ -92,7 +85,6 @@ const Login = () => {
         setIsLoading(false);
       });
   };
-  
 
   const AllFieldsRequired = Boolean(email) && Boolean(password);
 

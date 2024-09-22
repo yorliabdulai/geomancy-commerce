@@ -24,7 +24,7 @@ const OrderDetailsComponent = ({ order, admin, user, orderId }) => {
                             <p className="font-semibold text-lg my-2">
                                 Order Amount :
                                 <span className="font-light text-gray-500">
-                                    {formatPrice(order?.amount)}
+                                    {formatPrice(order?.orderAmount)}
                                 </span>
                             </p>
                             <p className="font-semibold text-lg my-2">
