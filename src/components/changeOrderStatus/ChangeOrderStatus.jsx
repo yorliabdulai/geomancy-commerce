@@ -23,7 +23,7 @@ const ChangeOrderStatus = ({ order, orderId }) => {
             email: order.email,
             orderDate: order.orderDate,
             ...(order.orderTime && { orderTime: order.orderTime }), // Include orderTime only if it exists
-            orderAmount: order.amount,
+            orderAmount: order.orderAmount,
             orderStatus: status,
             ...(order.cartItems && { cartItems: order.cartItems }), // Include cartItems only if it exists
             shippingAddress: order.shippingAddress,

@@ -3,7 +3,7 @@ import Loader from "../../components/loader/Loader";
 import { useSelector, useDispatch } from "react-redux";
 import { calculateSubtotal, calculateTotalQuantity, clearCart } from "../../redux/slice/cartSlice";
 import { formatPrice } from "../../utils/formatPrice";
-import { collection, addDoc, Timestamp } from "firebase/firestore";
+import { collection, addDoc, Timestamp, setDoc, doc } from "firebase/firestore";
 import { db } from "../../firebase/config";
 import { useNavigate } from "react-router-dom";
 import { toast } from "react-toastify";
@@ -16,51 +16,54 @@ const Checkout = () => {
     const dispatch = useDispatch();
     const navigate = useNavigate();
 
+    const [isLoading, setIsLoading] = useState(false);
+
     useEffect(() => {
         dispatch(calculateSubtotal());
         dispatch(calculateTotalQuantity());
     }, [dispatch, cartItems]);
 
-    const [isLoading, setIsLoading] = useState(false);
+    useEffect(() => {
+        const urlParams = new URLSearchParams(window.location.search);
+        const reference = urlParams.get('reference');
 
-    const saveOrder = async () => {
-        if (!userId) {
-            toast.error("User not authenticated. Cannot save order.");
-            return;
+        if (reference) {
+            console.log("Payment reference found:", reference);
+            verifyTransaction(reference);
         }
-    
-        const orderDetails = {
-            userId,
-            email,
-            orderDate: new Date().toDateString(),
-            orderTime: new Date().toLocaleTimeString(),
-            orderAmount: totalAmount,
-            orderStatus: "Order Placed",
-            cartItems,
-            shippingAddress,
-            createdAt: Timestamp.now(),
-        };
-    
+    }, []);
+
+    const saveOrder = async (orderDetails) => {
+        if (!orderDetails.email) {
+            console.error("User email not found. Cannot save order.");
+            toast.error("User email not found. Cannot save order.");
+            return null;
+        }
+
         try {
-            await addDoc(collection(db, "orders"), orderDetails); // "orders" collection will be created if it doesn't exist
-            dispatch(clearCart());
+            const docRef = await addDoc(collection(db, "orders"), {
+                ...orderDetails,
+                createdAt: Timestamp.now().toDate(),
+            });
+            console.log("Order saved with ID:", docRef.id);
             toast.success("Order saved successfully!");
-            console.log("Order saved:", orderDetails);
+            return docRef.id;
         } catch (error) {
-            console.error("Error saving order to Firestore:", error.message);
-            toast.error("Failed to save order. Please contact support.");
+            console.error("Error saving order to Firestore:", error);
+            toast.error("Failed to save order. Please try again.");
+            return null;
         }
     };
-    
 
-    const initializeTransaction = async () => {
+    const handlePaystackPayment = async () => {
+        setIsLoading(true);
         try {
             const response = await fetch("http://localhost:3000/initialize-transaction", {
                 method: "POST",
                 headers: { "Content-Type": "application/json" },
                 body: JSON.stringify({
                     items: cartItems.map(item => ({
-                        price: Math.round(item.price),
+                        price: item.price,
                         qty: item.qty,
                     })),
                     email,
@@ -71,61 +74,87 @@ const Checkout = () => {
             });
 
             const data = await response.json();
-            return data.authorization_url;
+            console.log("Payment initialization response:", data);
+
+            if (data.authorization_url) {
+                // Save the order details before redirecting
+                const orderDetails = {
+                    email,
+                    userId: userId || "guest",
+                    orderDate: new Date().toISOString(),
+                    orderAmount: totalAmount,
+                    orderStatus: "Pending Payment",
+                    cartItems,
+                    shippingAddress,
+                };
+
+                const orderId = await saveOrder(orderDetails);
+                
+                if (orderId) {
+                    // Store the orderId in session storage for later use
+                    sessionStorage.setItem('pendingOrderId', orderId);
+                    console.log("Redirecting to:", data.authorization_url);
+                    window.location.href = data.authorization_url;
+                } else {
+                    throw new Error("Failed to save order");
+                }
+            } else {
+                console.error("Authorization URL not retrieved.");
+                toast.error("Failed to initiate payment. Please try again.");
+            }
         } catch (error) {
-            console.error("Error initializing transaction:", error);
+            console.error("Payment process failed:", error);
+            toast.error("Failed to process payment. Please try again.");
+        } finally {
             setIsLoading(false);
-            throw error;
         }
     };
 
     const verifyTransaction = async (reference) => {
+        console.log("Verifying transaction with reference:", reference);
         try {
-            console.log("Verifying transaction with reference:", reference); // Debug
             const response = await fetch(`http://localhost:3000/verify-transaction?reference=${reference}`);
             const data = await response.json();
-    
+            console.log("Verification response:", data);
+
             if (data.success) {
-                console.log("Transaction verified:", data); // Debug
-                await saveOrder(); // Save the order after successful payment
-                toast.success("Payment successful!");
-                navigate("/checkout-success");
+                console.log("Transaction verified successfully");
+                // Retrieve the pending order ID from session storage
+                const pendingOrderId = sessionStorage.getItem('pendingOrderId');
+                
+                if (pendingOrderId) {
+                    // Update the order status to "Completed"
+                    await updateOrderStatus(pendingOrderId, "Completed");
+                    dispatch(clearCart());
+                    sessionStorage.removeItem('pendingOrderId');
+                    toast.success("Payment successful and order completed!");
+                    navigate("/checkout-success");
+                } else {
+                    throw new Error("Pending order ID not found");
+                }
             } else {
-                console.error("Transaction verification failed:", data.message); // Debug
+                console.error("Transaction verification failed:", data.message);
                 toast.error("Transaction verification failed.");
             }
         } catch (error) {
-            console.error("Error verifying transaction:", error); // Debug
+            console.error("Error verifying transaction:", error);
             toast.error("Error verifying payment.");
         }
     };
-    
 
-    useEffect(() => {
-        const urlParams = new URLSearchParams(window.location.search);
-        const reference = urlParams.get('reference');
-
-        if (reference) {
-            verifyTransaction(reference); // Verify transaction after redirection
-        }
-    }, []);
-
-    const handlePaystackPayment = async () => {
-        setIsLoading(true);
+    const updateOrderStatus = async (orderId, newStatus) => {
         try {
-            const authorizationUrl = await initializeTransaction();
-
-            if (authorizationUrl) {
-                window.location.href = authorizationUrl;
-            } else {
-                console.error("Authorization URL not retrieved.");
-                setIsLoading(false);
-            }
+            await setDoc(doc(db, "orders", orderId), { 
+                orderStatus: newStatus,
+                updatedAt: Timestamp.now().toDate()
+            }, { merge: true });
+            console.log(`Order status updated to ${newStatus} successfully`);
         } catch (error) {
-            console.error("Payment failed:", error);
-            setIsLoading(false);
+            console.error("Error updating order status:", error);
+            toast.error("Failed to update order status. Please contact support.");
         }
     };
+
 
     return (
         <main>

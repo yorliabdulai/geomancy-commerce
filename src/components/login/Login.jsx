@@ -123,7 +123,7 @@ const Login = () => {
                   </Link>
                 </div>
                 <input
-                  className="input input-bordered w-full border-2 "
+                  className="input input-bordered w-full border-2"
                   type={`${showPassword ? "test" : "password"}`}
                   required
                   value={password}
@@ -165,7 +165,7 @@ const Login = () => {
                     <p className="py-4">
                       Still wanna test the app ? contact <br />
                       <a
-                        href="mailto: kartikpavan2@gmail.com"
+                        href="mailto: yorliabdulai1@gmail.com"
                         className="text-red-500 font-semibold"
                       >
                         yorliabdulai1@gmail.com
