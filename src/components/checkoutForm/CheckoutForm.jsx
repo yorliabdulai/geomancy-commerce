@@ -58,7 +58,7 @@ const CheckoutForm = () => {
     const handlePaystackPayment = async () => {
         setIsLoading(true);
         try {
-            const response = await fetch("http://localhost:3000/initialize-transaction", {
+            const response = await fetch("https://geomancy-commerce.onrender.com/initialize-transaction", {
                 method: "POST",
                 headers: { "Content-Type": "application/json" },
                 body: JSON.stringify({
@@ -113,7 +113,7 @@ const CheckoutForm = () => {
     const verifyTransaction = async (reference) => {
         console.log("Verifying transaction with reference:", reference);
         try {
-            const response = await fetch(`http://localhost:3000/verify-transaction?reference=${reference}`);
+            const response = await fetch(`https://geomancy-commerce.onrender.com/verify-transaction?reference=${reference}`);
             const data = await response.json();
             console.log("Verification response:", data);
 
