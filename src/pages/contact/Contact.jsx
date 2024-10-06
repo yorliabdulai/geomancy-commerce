@@ -51,21 +51,21 @@ const Contact = () => {
                   <div className="flex items-center gap-2 my-2 md:text-xl">
                      <AiOutlineMail />
                      <a href="mailto: Support@eshop.com?subject=Feedback&body=message">
-                        Support@eshop.com
+                        Support@geomancy.com
                      </a>
                   </div>
                   <div className="flex items-center gap-2  my-2 md:text-xl">
                      <CiPhone />
-                     <a href="tel:+91-123-12345">91-123-12345</a>
+                     <a href="tel:+91-123-12345">+233203882754</a>
                   </div>
                   <div className="flex items-center gap-2 md:text-xl  my-2">
                      <AiOutlineTwitter />
                      <a
-                        href="https://twitter.com/kartik_im"
+                        href=""
                         rel="noreferrer"
                         target="_blank"
                      >
-                        @kartik_im
+                        @geomancy
                      </a>
                   </div>
                </div>
