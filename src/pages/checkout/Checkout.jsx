@@ -68,7 +68,7 @@ const Checkout = () => {
                     })),
                     email,
                     shippingAddress,
-                    amount: totalAmount,
+                    amount: totalAmount * 100,
                     description: `Payment of ${formatPrice(totalAmount)} from ${email}`,
                 }),
             });
