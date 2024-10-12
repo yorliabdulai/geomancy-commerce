@@ -5,41 +5,19 @@ import { Link, useNavigate } from "react-router-dom";
 import { toast } from "react-toastify";
 import "react-toastify/dist/ReactToastify.css";
 import Loader from "../loader/Loader";
-//Firebase
 import { GoogleAuthProvider, signInWithEmailAndPassword, signInWithPopup } from "firebase/auth";
 import { auth } from "../../firebase/config";
+import { useDispatch } from "react-redux";
+import { setActiveUser } from "../../redux/slice/authSlice"; // Assuming you have this action
 
 const Login = () => {
   const [email, setEmail] = useState("");
   const [password, setPassword] = useState("");
   const [showPassword, setShowPassword] = useState(false);
   const [isLoading, setIsLoading] = useState(false);
+  const [isLoggedIn, setIsLoggedIn] = useState(false);
   const navigate = useNavigate();
-
-  //! Test / Guest Account Login
-  //* Currently this feature is disabled due to spam messages reported by the ADMIN
-  const testLogin = (e) => {
-    e.preventDefault();
-    // document.getElementById("my-modal-69").checked = true;
-    // setInfoModalOpen(true);
-    document.getElementById("my-modal-4").checked = false;
-
-    let testEmail = import.meta.env.VITE_TEST_EMAIL;
-    let testPass = import.meta.env.VITE_TEST_PASSWORD;
-    setIsLoading(true);
-    signInWithEmailAndPassword(auth, testEmail, testPass)
-      .then((userCredential) => {
-        const user = userCredential.user;
-        toast.success("Login Successful");
-        setIsLoading(false);
-        // document.getElementById("my-modal-4").checked = false;
-        navigate("/");
-      })
-      .catch((error) => {
-        toast.error(error.code, error.message);
-        setIsLoading(false);
-      });
-  };
+  const dispatch = useDispatch();
 
   const handleSubmit = (e) => {
     e.preventDefault();
@@ -48,45 +26,63 @@ const Login = () => {
     signInWithEmailAndPassword(auth, email, password)
       .then((userCredential) => {
         const user = userCredential.user;
-        // Dispatch user data to Redux
         dispatch(setActiveUser({
           email: user.email,
-          userName: user.displayName || "User", // Use displayName or fallback
-          userId: user.uid, // Set userId here
+          userName: user.displayName || "User",
+          userId: user.uid,
         }));
   
         toast.success("Login Successful");
         setIsLoading(false);
-        navigate("/");
+        setIsLoggedIn(true);
+        setTimeout(() => {
+          document.getElementById("my-modal-4").checked = false;
+          navigate("/");
+        }, 2000);
       })
       .catch((error) => {
-        toast.error(error.code, error.message);
+        toast.error(error.message);
         setIsLoading(false);
       });
-  
-    setEmail("");
-    setPassword("");
   };
 
-  //* Login with Google
   const provider = new GoogleAuthProvider();
   const googleSignIn = () => {
     setIsLoading(true);
-    document.getElementById("my-modal-4").checked = false;
     signInWithPopup(auth, provider)
       .then((result) => {
         const user = result.user;
+        dispatch(setActiveUser({
+          email: user.email,
+          userName: user.displayName || "User",
+          userId: user.uid,
+        }));
         toast.success("Login Successful");
         setIsLoading(false);
-        navigate("/");
+        setIsLoggedIn(true);
+        setTimeout(() => {
+          document.getElementById("my-modal-4").checked = false;
+          navigate("/");
+        }, 2000);
       })
       .catch((error) => {
-        toast.error(error.code, error.message);
+        toast.error(error.message);
         setIsLoading(false);
       });
   };
 
   const AllFieldsRequired = Boolean(email) && Boolean(password);
+
+  if (isLoggedIn) {
+    return (
+      <div className="py-6 w-72 md:w-96">
+        <div className="bg-white rounded-lg shadow-lg overflow-hidden mx-auto max-w-4xl p-8">
+          <h2 className="text-2xl font-bold text-center text-green-600 mb-4">Login Successful!</h2>
+          <p className="text-center text-gray-600">You will be redirected to the home page shortly.</p>
+        </div>
+      </div>
+    );
+  }
 
   return (
     <>
@@ -124,7 +120,7 @@ const Login = () => {
                 </div>
                 <input
                   className="input input-bordered w-full border-2"
-                  type={`${showPassword ? "test" : "password"}`}
+                  type={showPassword ? "text" : "password"}
                   required
                   value={password}
                   onChange={(e) => setPassword(e.target.value)}
@@ -145,34 +141,6 @@ const Login = () => {
                 <button type="submit" className="btn w-full" disabled={!AllFieldsRequired}>
                   Login
                 </button>
-
-                {/* The button to open modal */}
-                {/* <label
-                  onClick={testLogin}
-                  htmlFor="my-modal-69"
-                  className="btn btn-info btn-sm mt-2"
-                >
-                  Test User
-                </label> */}
-
-                {/* Put this part before </body> tag */}
-                <input type="checkbox" id="my-modal-69" className="modal-toggle" />
-                <label htmlFor="my-modal-69" className="modal cursor-pointer">
-                  <label className="modal-box relative" htmlFor="">
-                    <h3 className="text-lg font-bold">
-                      SORRY, this feature is currently Disabled due to Spamming
-                    </h3>
-                    <p className="py-4">
-                      Still wanna test the app ? contact <br />
-                      <a
-                        href="mailto: yorliabdulai1@gmail.com"
-                        className="text-red-500 font-semibold"
-                      >
-                        yorliabdulai1@gmail.com
-                      </a>
-                    </p>
-                  </label>
-                </label>
               </div>
             </form>
           </div>
