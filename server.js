@@ -14,7 +14,7 @@ if (process.env.NODE_ENV === "production") {
 
 app.use(express.json());
 app.use(cors({
-    origin: 'http://localhost:5173', // Allow only your frontend
+    origin: 'https://geomancy-commerce.vercel.app', // Allow only your frontend
     methods: 'GET,POST,PUT,DELETE,OPTIONS',  // Specify the allowed methods
     allowedHeaders: 'Content-Type,Authorization' // Specify allowed headers
 }));
