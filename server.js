@@ -64,7 +64,7 @@ app.post("/initialize-transaction", async (req, res) => {
             },
             {
                 headers: {
-                    Authorization: `Bearer sk_test_21caa1235e207b235bd4a5de86961a16b2feedf9`,
+                    Authorization: `Bearer ${process.env.PAYSTACK_SECRET_KEY}`,
                     "Content-Type": "application/json",
                 },
             }
