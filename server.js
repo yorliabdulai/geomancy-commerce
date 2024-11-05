@@ -87,7 +87,7 @@ app.get("/verify-transaction", async (req, res) => {
     try {
         const response = await axios.get(`https://api.paystack.co/transaction/verify/${reference}`, {
             headers: {
-                Authorization: `Bearer sk_test_21caa1235e207b235bd4a5de86961a16b2feedf9`,
+                Authorization: `Bearer ${process.env.PAYSTACK_SECRET_KEY}`,
             },
         });
 
