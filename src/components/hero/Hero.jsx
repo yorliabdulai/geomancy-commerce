@@ -56,9 +56,7 @@ const Hero = () => {
                         </p>
 
                         <p className="mt-3 text-gray-600 dark:text-gray-400">
-                           Lorem ipsum dolor sit amet, consectetur adipisicing
-                           elit. Porro beatae error laborum ab amet sunt
-                           recusandae? Reiciendis natus perspiciatis optio.
+                        Unlock the secrets of ancient divination with our exclusive collection of books, courses, and unique merchandise. Whether you're a beginner or a seasoned practitioner, GeomancyCommerce has everything you need to explore the art of geomancy and deepen your knowledge.
                         </p>
 
                         <Link to="/all">
