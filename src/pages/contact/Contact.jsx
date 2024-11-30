@@ -1,7 +1,7 @@
 import React, { useRef, useState } from "react";
 import { Header } from "../../components";
 import { CiPhone } from "react-icons/ci";
-import { AiOutlineMail, AiOutlineTwitter } from "react-icons/ai";
+import { AiOutlineMail, AiOutlineTwitter, AiOutlineFacebook } from "react-icons/ai";
 import emailjs from "@emailjs/browser";
 import { toast } from "react-toastify";
 
@@ -54,14 +54,20 @@ const Contact = () => {
                      contact@geomancycoaching.org
                      </a>
                   </div>
+                  <div className="flex items-center gap-2 my-2 md:text-xl">
+                     <AiOutlineMail />
+                     <a href="mailto: support@geomancycoaching.org?subject=Feedback&body=message">
+                     support@geomancycoaching.org
+                     </a>
+                  </div>
                   <div className="flex items-center gap-2  my-2 md:text-xl">
                      <CiPhone />
-                     <a href="tel:+91-123-12345">+233203882754</a>
+                     <a href="tel:+91-123-12345">+233549373910</a>
                   </div>
                   <div className="flex items-center gap-2 md:text-xl  my-2">
-                     <AiOutlineTwitter />
+                     <AiOutlineFacebook />
                      <a
-                        href=""
+                        href="https://m.facebook.com/profile.php?id=61564145274142&name=xhp_nt_"
                         rel="noreferrer"
                         target="_blank"
                      >
