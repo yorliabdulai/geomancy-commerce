@@ -37,7 +37,7 @@ const Contact = () => {
       <>
          <Header text="Contact Us" />
          <main className="w-full mx-auto px-2 lg:w-9/12 md:px-6 mt-4 lg:mt-6 flex flex-col md:flex-row justify-between gap-10">
-            <section className="w-full md:w-[30rem] bg-primary-content rounded-md p-6 h-72">
+            <section className="w-full md:w-[30rem] bg-primary-content rounded-md p-6 h-72 ">
                {/* Card */}
                <div className="mb-10">
                   <h1 className="text-xl md:text-3xl mb-2">
@@ -53,13 +53,9 @@ const Contact = () => {
                      <a href="mailto: contact@geomancycoaching.org?subject=Feedback&body=message">
                      contact@geomancycoaching.org
                      </a>
+      
                   </div>
-                  <div className="flex items-center gap-2 my-2 md:text-xl">
-                     <AiOutlineMail />
-                     <a href="mailto: support@geomancycoaching.org?subject=Feedback&body=message">
-                     support@geomancycoaching.org
-                     </a>
-                  </div>
+                  
                   <div className="flex items-center gap-2  my-2 md:text-xl">
                      <CiPhone />
                      <a href="tel:+91-123-12345">+233549373910</a>
@@ -71,7 +67,7 @@ const Contact = () => {
                         rel="noreferrer"
                         target="_blank"
                      >
-                        @geomancy
+                        Geomancy Coaching
                      </a>
                   </div>
                </div>
