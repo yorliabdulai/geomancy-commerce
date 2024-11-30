@@ -50,7 +50,7 @@ const Contact = () => {
                <div>
                   <div className="flex items-center gap-2 my-2 md:text-xl">
                      <AiOutlineMail />
-                     <a href="mailto: Support@eshop.com?subject=Feedback&body=message">
+                     <a href="mailto: contact@geomancycoaching.org?subject=Feedback&body=message">
                      contact@geomancycoaching.org
                      </a>
                   </div>
