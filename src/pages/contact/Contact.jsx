@@ -58,7 +58,7 @@ const Contact = () => {
                   
                   <div className="flex items-center gap-2  my-2 md:text-xl">
                      <CiPhone />
-                     <a href="tel:+91-123-12345">+233549373910</a>
+                     <a href="tel:+233549373910">+233549373910</a>
                   </div>
                   <div className="flex items-center gap-2 md:text-xl  my-2">
                      <AiOutlineFacebook />
