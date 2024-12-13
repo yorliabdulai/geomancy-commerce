@@ -27,6 +27,19 @@ const AddProducts = () => {
     return func2;
   }
 
+  /**
+   * Handle Input Changes
+   * @param {React.ChangeEvent<HTMLInputElement>} e Change Event
+   * @description Updates the product state with the new value
+   * @example
+   * const inputEvent = {
+   *  target: {
+   *    name: "name",
+   *    value: "Product Name"
+   *  }
+   * }
+   * handleInputChange(inputEvent)
+   */
   function handleInputChange(e) {
     const { name, value } = e.target;
     setProduct({ ...product, [name]: value });
