@@ -57,7 +57,20 @@ const AddProducts = () => {
     const { name, value } = e.target;
     setProduct({ ...product, [name]: value });
   }
-  //! File Upload to FireStorage
+  
+  /**
+   * Handles image uploads to Firebase Storage
+   * @param {React.ChangeEvent<HTMLInputElement>} e Change Event
+   * @description Uploads the selected image file to Firebase Storage,
+   * sets the product state with the new image URL and shows upload progress
+   * @example
+   * const inputEvent = {
+   *  target: {
+   *    files: [File]
+   *  }
+   * }
+   * handleImageChange(inputEvent)
+   */
   function handleImageChange(e) {
     const file = e.target.files[0];
     const storageRef = ref(storage, `images/${Date.now()}${file.name}`);
