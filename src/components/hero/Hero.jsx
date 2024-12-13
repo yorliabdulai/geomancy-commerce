@@ -2,7 +2,7 @@ import hero from "../../assets/hero3.png";
 import { Link } from "react-router-dom";
 import { TbArrowNarrowRight } from "react-icons/tb";
 import { useEffect, useState } from "react";
-const tags = ["Books", "Mechandise", "Courses", "Consultations"];
+const tags = ["Books", "Mechandise", "Courses", "Consultations", "Coaching"];
 
 let currentIndex = 0;
 const Hero = () => {
