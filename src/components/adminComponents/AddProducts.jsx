@@ -9,7 +9,13 @@ import { collection, addDoc, Timestamp, setDoc, doc } from "firebase/firestore";
 import { storage, db } from "../../firebase/config";
 import { useSelector } from "react-redux";
 
-//! Handle Input Changes
+
+/**
+ * Component for adding or editing a product
+ * @description Handles the form fields for adding or editing a product
+ * @param {string} paramsId - The ID of the product to edit
+ * @returns {React.ReactElement} - The form elements for adding or editing a product
+ */
 const AddProducts = () => {
   const navigate = useNavigate();
   const { id: paramsId } = useParams();
