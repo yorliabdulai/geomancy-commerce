@@ -5,7 +5,6 @@ import { useEffect, useState } from "react";
 const tags = ["Books", "Mechandise", "Courses", "Consultations", "Coaching"];
 
 let currentIndex = 0;
-/*************  ✨ Codeium Command ⭐  *************/
 /**
  * The Hero component displays a hero section with a background image, a heading, and a call-to-action button.
  * It also displays a rotating tag name above the call-to-action button.
@@ -18,7 +17,6 @@ let currentIndex = 0;
  * The component also renders an image element with a class of "w-full h-full lg:max-w-3xl".
  * The image element is wrapped in a div element with a class of "flex items-center justify-center w-full mt-6 lg:mt-0 lg:w-1/2".
  */
-/******  7e4bcaa5-3b58-40b2-a511-39176d336a9e  *******/
 const Hero = () => {
    const [tagName, setTagName] = useState("");
    function updateCountdown() {
