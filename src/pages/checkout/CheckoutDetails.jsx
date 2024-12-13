@@ -30,6 +30,17 @@ const CheckoutDetails = () => {
 	const dispatch = useDispatch();
 	const navigate = useNavigate();
 
+	/**
+	 * Handle input change on shipping address form
+	 *
+	 * @function handleShipping
+	 * @param {Event} e - Input change event
+	 * @description
+	 * This function is called whenever an input field changes
+	 * value in the shipping address form.
+	 * It takes the `name` and `value` of the input field
+	 * and updates the `shippingAddress` state.
+	 */
 	function handleShipping(e) {
 		const { name, value } = e.target;
 		setShippingAddress({ ...shippingAddress, [name]: value });
