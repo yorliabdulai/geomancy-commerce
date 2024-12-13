@@ -94,7 +94,6 @@ const AddProducts = () => {
     );
   }
   
-/*************  ✨ Codeium Command ⭐  *************/
 /**
  * Adds a new product to the Firestore database.
  * @param {React.FormEvent<HTMLFormElement>} e - The form submission event.
@@ -104,7 +103,6 @@ const AddProducts = () => {
  * addition, it resets the product form and navigates to the "all-products" admin page.
  * Displays a success message on successful operation or an error message on failure.
  */
-/******  5840e812-7e09-4f80-9aa6-b9d6b17f6d85  *******/
   async function addProduct(e) {
     e.preventDefault();
     setIsLoading(true);
