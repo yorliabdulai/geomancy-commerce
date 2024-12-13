@@ -13,6 +13,11 @@ const earningIcon = <BiDollar size={22} color="white" />;
 const productIcon = <FaCartArrowDown size={22} color="white" />;
 const orderIcon = <BsCart size={22} color="white" />;
 
+/**
+ * AdminHome component displays the admin home page. It fetches the orders data and stores it in the order state.
+ * It also displays the total earnings, total products and total orders.
+ * The component also renders a chart, which is displaying the order status.
+ */
 const AdminHome = () => {
 	const { data } = useFetchCollection("orders");
 	const { products } = useSelector((store) => store.product);
