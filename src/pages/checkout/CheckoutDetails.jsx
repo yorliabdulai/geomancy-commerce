@@ -16,6 +16,15 @@ const defaultValues = {
 	phone: "",
 };
 
+/**
+ * CheckoutDetails Component
+ *
+ * @function CheckoutDetails
+ * @returns {JSX.Element} Element containing the checkout details form and summary
+ * @description
+ * This component is responsible for rendering the checkout details form and summary.
+ * It validates the form and saves the shipping and billing addresses in the Redux store.
+ */
 const CheckoutDetails = () => {
 	const [shippingAddress, setShippingAddress] = useState(defaultValues);
 	const dispatch = useDispatch();
