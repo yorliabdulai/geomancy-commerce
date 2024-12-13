@@ -127,7 +127,17 @@ const AddProducts = () => {
       setIsLoading(false);
     }
   }
-  //! Edit Product
+  
+/**
+ * Edits an existing product in the Firestore database.
+ * @param {React.FormEvent<HTMLFormElement>} e - The form submission event.
+ * @description This function prevents the default form submission behavior,
+ * shows a loading state, and updates the product document in the "products"
+ * collection in Firestore with the current product details. If the product's
+ * image has been updated, the old image is deleted from storage. After successful
+ * update, it resets the product form and navigates to the "all-products" admin page.
+ * Displays a success message on successful operation or an error message on failure.
+ */
   async function editProduct(e) {
     e.preventDefault();
     setIsLoading(true);
