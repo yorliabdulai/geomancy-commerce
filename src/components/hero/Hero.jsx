@@ -19,6 +19,12 @@ let currentIndex = 0;
  */
 const Hero = () => {
    const [tagName, setTagName] = useState("");
+/**
+ * Cycles through the tags array, updating the tagName state with the current tag
+ * based on the currentIndex. Increments the currentIndex and resets it to zero
+ * when it reaches the end of the array. Recursively calls itself every 2 seconds
+ * to continuously update the tagName.
+ */
    function updateCountdown() {
       const currentItem = tags[currentIndex];
       setTagName(currentItem);
