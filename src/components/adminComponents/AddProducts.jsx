@@ -27,7 +27,14 @@ const AddProducts = () => {
   const [uploadProgress, setUploadProgress] = useState(0);
   const [isLoading, setIsLoading] = useState(false);
 
-  //! Check for Add or Edit
+  
+  /**
+   * Detects whether the product is being added or edited, and returns the appropriate values.
+   * @param {string} paramsId - The ID of the product to edit
+   * @param {Object} func1 - The default values for adding a product
+   * @param {Object} func2 - The product to edit
+   * @returns {Object} - The values to use for the form
+   */
   function detectForm(paramsId, func1, func2) {
     if (paramsId === "ADD") return func1;
     return func2;
