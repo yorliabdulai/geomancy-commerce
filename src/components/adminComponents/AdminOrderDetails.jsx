@@ -21,7 +21,7 @@ const AdminOrderDetails = () => {
     const { document } = useFetchDocument("orders", id);
 
     useEffect(() => {
-        console.log("Fetched Document from Hook:", document); // Log here to see the document being set
+        
         setOrder(document);
     }, [document]);
 
