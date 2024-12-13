@@ -25,10 +25,10 @@ const OrderHistory = () => {
     // Filter orders based on email instead of userId
     const filteredOrders = orderHistory.filter((order) => order.email === email);
 
-    console.log("Raw data from Firestore:", data);
-    console.log("User email:", email);
-    console.log("Order history from Redux:", orderHistory);
-    console.log("Filtered orders:", filteredOrders);
+    
+    
+    
+    
 
     return (
         <>

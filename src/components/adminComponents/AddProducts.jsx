@@ -122,7 +122,7 @@ const AddProducts = () => {
       toast.success("Product added to Database Successfully");
       navigate("/admin/all-products");
     } catch (error) {
-      console.log(error.message);
+      
       toast.error("Something Went Wrong , Check Console");
       setIsLoading(false);
     }
@@ -159,14 +159,14 @@ const AddProducts = () => {
         createdAt: productEdit.createdAt,
         editedAt: Timestamp.now().toDate(),
       });
-      console.log("Document added:", docRef.id);
+      
       setUploadProgress(0);
       setProduct(defaultValues);
       setIsLoading(false);
       toast.success("Product Updated Successfully");
       navigate("/admin/all-products");
     } catch (error) {
-      console.log(error.message);
+      
       toast.error("Something Went Wrong , Check Console");
       setIsLoading(false);
     }

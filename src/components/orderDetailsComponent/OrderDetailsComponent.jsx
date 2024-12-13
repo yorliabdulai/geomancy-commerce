@@ -5,8 +5,8 @@ import ChangeOrderStatus from "../changeOrderStatus/ChangeOrderStatus";
 import { OrderTable, Steps } from "../../components";
 
 const OrderDetailsComponent = ({ order, admin, user, orderId }) => {
-    console.log("Received Props:", { order, admin, user, orderId });
-    console.log("Order Structure:", order); // Log the order structure
+    
+     // Log the order structure
 
     return (
         <>

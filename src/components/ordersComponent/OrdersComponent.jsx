@@ -11,8 +11,8 @@ const OrdersComponent = ({ orders, user, admin }) => {
 	function handleAdminClick(orderId) {
 		navigate(`/admin/order-details/${orderId}`);
 	}
-    console.log(orders)
-	console.log(user)
+    
+	
 	return (
 		<main>
 			{!orders.length ? (

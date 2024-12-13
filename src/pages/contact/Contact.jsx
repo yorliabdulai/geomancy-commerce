@@ -21,11 +21,11 @@ const Contact = () => {
          )
          .then(
             (result) => {
-               console.log(result.text);
+               
                toast.success("Feedback Recorded. We will Contact you shortly");
             },
             (error) => {
-               console.log(error.text);
+               
                toast.error("Something went Wrong , Please try again later");
             }
          );

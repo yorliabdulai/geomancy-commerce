@@ -42,7 +42,7 @@ const calculateOrderAmount = (items) => {
 
 
 app.post("/initialize-transaction", async (req, res) => {
-    console.log(req.body);
+    
     const { items, shippingAddress, description, email } = req.body;
     if (!items) {
         return res.status(400).send({ error: "No items found in request" });
@@ -82,7 +82,7 @@ app.post("/initialize-transaction", async (req, res) => {
 // Verify transaction after successful payment
 app.get("/verify-transaction", async (req, res) => {
     const reference = req.query.reference;
-    console.log("Received transaction reference:", reference); // Debug
+     // Debug
 
     try {
         const response = await axios.get(`https://api.paystack.co/transaction/verify/${reference}`, {
@@ -92,7 +92,7 @@ app.get("/verify-transaction", async (req, res) => {
         });
 
         const { status, data } = response.data;
-        console.log("Transaction verification response:", response.data); // Debug
+         // Debug
 
         if (status === "success") {
             // Handle transaction success here (save order in the database, etc.)
@@ -109,4 +109,4 @@ app.get("/verify-transaction", async (req, res) => {
 
 
 const PORT = process.env.PORT || 4242;
-app.listen(PORT, () => console.log(`Node server listening on port ${PORT}!`));
+app.listen(PORT, () => 

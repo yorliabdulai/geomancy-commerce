@@ -28,7 +28,7 @@ const Checkout = () => {
         const reference = urlParams.get('reference');
 
         if (reference) {
-            console.log("Payment reference found:", reference);
+            
             verifyTransaction(reference);
         }
     }, []);
@@ -45,7 +45,7 @@ const Checkout = () => {
                 ...orderDetails,
                 createdAt: Timestamp.now().toDate(),
             });
-            console.log("Order saved with ID:", docRef.id);
+            
             toast.success("Order saved successfully!");
             return docRef.id;
         } catch (error) {
@@ -74,7 +74,7 @@ const Checkout = () => {
             });
 
             const data = await response.json();
-            console.log("Payment initialization response:", data);
+            
 
             if (data.authorization_url) {
                 // Save the order details before redirecting
@@ -93,7 +93,7 @@ const Checkout = () => {
                 if (orderId) {
                     // Store the orderId in session storage for later use
                     sessionStorage.setItem('pendingOrderId', orderId);
-                    console.log("Redirecting to:", data.authorization_url);
+                    
                     window.location.href = data.authorization_url;
                 } else {
                     throw new Error("Failed to save order");
@@ -111,14 +111,14 @@ const Checkout = () => {
     };
 
     const verifyTransaction = async (reference) => {
-        console.log("Verifying transaction with reference:", reference);
+        
         try {
             const response = await fetch(`https://geomancy-commerce.onrender.com/verify-transaction?reference=${reference}`);
             const data = await response.json();
-            console.log("Verification response:", data);
+            
 
             if (data.success) {
-                console.log("Transaction verified successfully");
+                
                 // Retrieve the pending order ID from session storage
                 const pendingOrderId = sessionStorage.getItem('pendingOrderId');
                 
@@ -148,7 +148,7 @@ const Checkout = () => {
                 orderStatus: newStatus,
                 updatedAt: Timestamp.now().toDate()
             }, { merge: true });
-            console.log(`Order status updated to ${newStatus} successfully`);
+            
         } catch (error) {
             console.error("Error updating order status:", error);
             toast.error("Failed to update order status. Please contact support.");

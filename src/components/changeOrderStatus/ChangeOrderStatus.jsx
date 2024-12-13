@@ -16,7 +16,7 @@ const ChangeOrderStatus = ({ order, orderId }) => {
         setIsloading(true);
 
         // Log order to check for fields
-        console.log("Order details:", order);
+        
 
         const orderDetails = {
             ...(order.userId && { userId: order.userId }), // Include userId only if it exists
@@ -37,7 +37,7 @@ const ChangeOrderStatus = ({ order, orderId }) => {
             navigate("/admin/orders");
         } catch (error) {
             toast.error(error.message);
-            console.log(error);
+            
         } finally {
             setIsloading(false);
         }

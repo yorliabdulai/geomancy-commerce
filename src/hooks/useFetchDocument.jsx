@@ -15,9 +15,9 @@ const useFetchDocument = (collectionName, documentId) => {
                 ...docSnap.data(),
             };
             setDocument(obj);
-            console.log("Fetched Document:", obj); // Log the fetched document
+             // Log the fetched document
         } else {
-            console.log("No such document exists!");
+            
         }
     };
 

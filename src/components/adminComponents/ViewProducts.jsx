@@ -44,7 +44,7 @@ const ViewProducts = () => {
       toast.info("Product deleted successfully");
     } catch (error) {
       toast.error(error.message);
-      console.log(error.message);
+      
     }
   };
   return (
