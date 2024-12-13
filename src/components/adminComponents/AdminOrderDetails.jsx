@@ -5,6 +5,16 @@ import Loader from "../../components/loader/Loader";
 import useFetchDocument from "../../hooks/useFetchDocument";
 import OrderDetailsComponent from "../../components/orderDetailsComponent/OrderDetailsComponent";
 
+/**
+ * AdminOrderDetails
+ *
+ * This component fetches the order details and shows the component OrderDetailsComponent
+ * which is the same component used in the user's order history, but with the admin prop set to true.
+ *
+ * @param {string} id - The id of the order to fetch from Firebase.
+ *
+ * @returns JSX.Element
+ */
 const AdminOrderDetails = () => {
     const [order, setOrder] = useState(null);
     const { id } = useParams();
