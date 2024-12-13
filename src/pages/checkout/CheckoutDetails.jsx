@@ -46,6 +46,18 @@ const CheckoutDetails = () => {
 		setShippingAddress({ ...shippingAddress, [name]: value });
 	}
 
+	/**
+	 * Handle form submission
+	 *
+	 * @function handleSubmit
+	 * @param {Event} e - Form submission event
+	 * @description
+	 * This function is called when the shipping address form is submitted.
+	 * It prevents the default form submission behavior,
+	 * saves the shipping and billing addresses in the Redux store,
+	 * navigates to the checkout page,
+	 * and resets the shipping address state.
+	 */
 	function handleSubmit(e) {
 		e.preventDefault();
 		dispatch(saveShippingAddress(shippingAddress));
