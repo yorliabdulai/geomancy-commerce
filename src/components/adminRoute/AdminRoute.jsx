@@ -5,10 +5,10 @@ import { useSelector } from "react-redux";
 const AdminRoute = ({ children }) => {
   const { email } = useSelector((store) => store.auth);
 
-  // Retrieve admin emails from environment variables and convert them to an array
-  const adminEmails = import.meta.env.VITE_ADMIN_KEYS.split(',');
+  // Retrieve the admin email from environment variables
+  const adminEmail = import.meta.env.VITE_ADMIN_KEY;
 
-  if (adminEmails.includes(email)) return children;
+  if (email === adminEmail) return children;
 
   return (
     <section className="flex flex-col items-center justify-center w-full page gap-5">
@@ -24,10 +24,10 @@ const AdminRoute = ({ children }) => {
 export const AdminOnlyLink = ({ children }) => {
   const { email } = useSelector((store) => store.auth);
 
-  // Retrieve admin emails from environment variables and convert them to an array
-  const adminEmails = import.meta.env.VITE_ADMIN_KEYS.split(',');
+  // Retrieve the admin email from environment variables
+  const adminEmail = import.meta.env.VITE_ADMIN_KEY;
 
-  if (adminEmails.includes(email)) return children;
+  if (email === adminEmail) return children;
 
   return null;
 };
