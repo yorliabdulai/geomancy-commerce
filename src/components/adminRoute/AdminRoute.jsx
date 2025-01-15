@@ -6,7 +6,8 @@ const AdminRoute = ({ children }) => {
   const { email } = useSelector((store) => store.auth);
 
   // Retrieve admin emails from environment variables and convert them to an array
-  const adminEmails = import.meta.env.VITE_ADMIN_KEYS.split(',');
+  const adminKeys = import.meta.env.VITE_ADMIN_KEYS || "";
+  const adminEmails = adminKeys.split(',');
 
   if (adminEmails.includes(email)) return children;
 
@@ -25,7 +26,8 @@ export const AdminOnlyLink = ({ children }) => {
   const { email } = useSelector((store) => store.auth);
 
   // Retrieve admin emails from environment variables and convert them to an array
-  const adminEmails = import.meta.env.VITE_ADMIN_KEYS.split(',');
+  const adminKeys = import.meta.env.VITE_ADMIN_KEYS || "";
+  const adminEmails = adminKeys.split(',');
 
   if (adminEmails.includes(email)) return children;
 
