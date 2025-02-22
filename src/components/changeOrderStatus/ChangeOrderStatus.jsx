@@ -2,44 +2,60 @@ import React, { useState } from "react";
 import { toast } from "react-toastify";
 import Loader from "../loader/Loader";
 import { useNavigate } from "react-router-dom";
-// firebase
-import { doc, setDoc, Timestamp } from "firebase/firestore";
-import { db } from "../../firebase/config";
+import supabase from "../../supabase/supabase";
 
-const ChangeOrderStatus = ({ order, orderId }) => {
+const ChangeOrderStatus = ({ order, orderId, onUpdate }) => {
     const [status, setStatus] = useState("");
-    const [isLoading, setIsloading] = useState(false);
+    const [isLoading, setIsLoading] = useState(false);
     const navigate = useNavigate();
 
     const changeStatus = async (e) => {
         e.preventDefault();
-        setIsloading(true);
+        setIsLoading(true);
 
-        // Log order to check for fields
-        
+        if (!orderId) {
+            toast.error("Error: Order ID is missing!");
+            setIsLoading(false);
+            return;
+        }
+
+        if (!status) {
+            toast.error("Please select a status before updating.");
+            setIsLoading(false);
+            return;
+        }
 
         const orderDetails = {
-            ...(order.userId && { userId: order.userId }), // Include userId only if it exists
+            userId: order.userId,
             email: order.email,
             orderDate: order.orderDate,
-            ...(order.orderTime && { orderTime: order.orderTime }), // Include orderTime only if it exists
             orderAmount: order.orderAmount,
             orderStatus: status,
-            ...(order.cartItems && { cartItems: order.cartItems }), // Include cartItems only if it exists
             shippingAddress: order.shippingAddress,
             createdAt: order.createdAt,
-            editedAt: Timestamp.now().toDate(),
+            editedAt: new Date().toISOString(), // Replaces Timestamp.now()
         };
 
         try {
-            await setDoc(doc(db, "orders", orderId), orderDetails);
+            const { error } = await supabase
+                .from("orders")
+                .update(orderDetails)
+                .eq("id", orderId);
+
+            if (error) {
+                throw new Error(error.message);
+            }
+
             toast.success(`Order status changed to ${status}`);
+
+            // Trigger rerender
+            if (onUpdate) onUpdate();
+
             navigate("/admin/orders");
         } catch (error) {
-            toast.error(error.message);
-            
+            toast.error(`Update failed: ${error.message}`);
         } finally {
-            setIsloading(false);
+            setIsLoading(false);
         }
     };
 
@@ -54,7 +70,7 @@ const ChangeOrderStatus = ({ order, orderId }) => {
                         onChange={(e) => setStatus(e.target.value)}
                         className="select select-secondary w-full max-w-xs"
                     >
-                        <option disabled>--Status---</option>
+                        <option disabled value="">--Status---</option>
                         <option value="orderPlaced">Order Placed</option>
                         <option value="Processing...">Processing...</option>
                         <option value="Item(s) Shipped">Item(s) Shipped</option>
