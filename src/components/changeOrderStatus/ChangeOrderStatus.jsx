@@ -2,57 +2,44 @@ import React, { useState } from "react";
 import { toast } from "react-toastify";
 import Loader from "../loader/Loader";
 import { useNavigate } from "react-router-dom";
-import supabase from "../../supabase/supabase";
+// firebase
+import { doc, setDoc, Timestamp } from "firebase/firestore";
+import { db } from "../../firebase/config";
 
-const ChangeOrderStatus = ({ order, orderId, onUpdate }) => {
+const ChangeOrderStatus = ({ order, orderId }) => {
     const [status, setStatus] = useState("");
-    const [isLoading, setIsLoading] = useState(false);
+    const [isLoading, setIsloading] = useState(false);
     const navigate = useNavigate();
 
     const changeStatus = async (e) => {
         e.preventDefault();
-        setIsLoading(true);
+        setIsloading(true);
 
-        if (!orderId) {
-            toast.error("Error: Order ID is missing!");
-            setIsLoading(false);
-            return;
-        }
+        // Log order to check for fields
+        
 
-        if (!status) {
-            toast.error("Please select a status before updating.");
-            setIsLoading(false);
-            return;
-        }
+        const orderDetails = {
+            ...(order.userId && { userId: order.userId }), // Include userId only if it exists
+            email: order.email,
+            orderDate: order.orderDate,
+            ...(order.orderTime && { orderTime: order.orderTime }), // Include orderTime only if it exists
+            orderAmount: order.orderAmount,
+            orderStatus: status,
+            ...(order.cartItems && { cartItems: order.cartItems }), // Include cartItems only if it exists
+            shippingAddress: order.shippingAddress,
+            createdAt: order.createdAt,
+            editedAt: Timestamp.now().toDate(),
+        };
 
         try {
-            // Update order status in Supabase
-            const { data, error } = await supabase
-                .from("orders")
-                .update({ orderStatus: status, editedAt: new Date().toISOString() })
-                .eq("id", orderId)
-                .select(); // Fetch the updated row
-
-            if (error) {
-                throw new Error(error.message);
-            }
-
-            if (data.length === 0) {
-                throw new Error("No order was updated. Check the order ID.");
-            }
-
-            console.log("Updated Order Data:", data); // Debugging
-
+            await setDoc(doc(db, "orders", orderId), orderDetails);
             toast.success(`Order status changed to ${status}`);
-
-            // Trigger re-render
-            if (onUpdate) onUpdate();
-
             navigate("/admin/orders");
         } catch (error) {
-            toast.error(`Update failed: ${error.message}`);
+            toast.error(error.message);
+            
         } finally {
-            setIsLoading(false);
+            setIsloading(false);
         }
     };
 
@@ -67,7 +54,7 @@ const ChangeOrderStatus = ({ order, orderId, onUpdate }) => {
                         onChange={(e) => setStatus(e.target.value)}
                         className="select select-secondary w-full max-w-xs"
                     >
-                        <option disabled value="">--Status---</option>
+                        <option disabled>--Status---</option>
                         <option value="orderPlaced">Order Placed</option>
                         <option value="Processing...">Processing...</option>
                         <option value="Item(s) Shipped">Item(s) Shipped</option>
