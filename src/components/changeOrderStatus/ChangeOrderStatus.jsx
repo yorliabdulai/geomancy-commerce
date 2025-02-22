@@ -25,30 +25,27 @@ const ChangeOrderStatus = ({ order, orderId, onUpdate }) => {
             return;
         }
 
-        const orderDetails = {
-            userId: order.userId,
-            email: order.email,
-            orderDate: order.orderDate,
-            orderAmount: order.orderAmount,
-            orderStatus: status,
-            shippingAddress: order.shippingAddress,
-            createdAt: order.createdAt,
-            editedAt: new Date().toISOString(), // Replaces Timestamp.now()
-        };
-
         try {
-            const { error } = await supabase
+            // Update order status in Supabase
+            const { data, error } = await supabase
                 .from("orders")
-                .update(orderDetails)
-                .eq("id", orderId);
+                .update({ orderStatus: status, editedAt: new Date().toISOString() })
+                .eq("id", orderId)
+                .select(); // Fetch the updated row
 
             if (error) {
                 throw new Error(error.message);
             }
 
+            if (data.length === 0) {
+                throw new Error("No order was updated. Check the order ID.");
+            }
+
+            console.log("Updated Order Data:", data); // Debugging
+
             toast.success(`Order status changed to ${status}`);
 
-            // Trigger rerender
+            // Trigger re-render
             if (onUpdate) onUpdate();
 
             navigate("/admin/orders");
